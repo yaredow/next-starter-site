@@ -1,13 +1,69 @@
 ---
-title: Hello World
+title: Introduction
 description: Your first document
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { Authentication, Stripe, API, Email, SEO } from "@/constants";
 
-## What is Next?
+Welcome to the Next-start documentation. Here you'll discover everything you need to know about the starter kit — from its structure and key features to practical guidance on how to leverage it in your app development projects.
+
+![Image Description](/images/next-start.png)
+
+## What is Next-start?
+
+Next-start is a fullstack starter kit that helps you build scalable and production-ready web apps in minutes.
+
+## Features
+
+This are the features Next-start has
+
+### Authentication
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
+  {Authentication.map((item) => (
+    <Card key={item.title} icon={item.icon} title={item.title} href={item.href}>
+      {item.description}
+    </Card>
+  ))}
+</Cards>
+
+### Stripe
+
+<Cards>
+  {Stripe.map((item) => (
+    <Card key={item.title} icon={item.icon} title={item.title} href={item.href}>
+      {item.description}
+    </Card>
+  ))}
+</Cards>
+
+### API
+
+<Cards>
+  {API.map((item) => (
+    <Card key={item.title} icon={item.icon} title={item.title} href={item.href}>
+      {item.description}
+    </Card>
+  ))}
+</Cards>
+
+### Email
+
+<Cards>
+  {Email.map((item) => (
+    <Card key={item.title} icon={item.icon} title={item.title} href={item.href}>
+      {item.description}
+    </Card>
+  ))}
+</Cards>
+
+### Seo
+
+<Cards>
+  {SEO.map((item) => (
+    <Card key={item.title} icon={item.icon} title={item.title}>
+      {item.description}
+    </Card>
+  ))}
 </Cards>

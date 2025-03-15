@@ -44,6 +44,14 @@ import {
   ArrowLeft,
   Icon,
   Network,
+  Link,
+  Shield,
+  DollarSign,
+  Server,
+  Wand2,
+  Shuffle,
+  Globe,
+  Bolt,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -129,6 +137,15 @@ export const Icons = {
   trash: Trash,
   puzzle: Puzzle,
   network: Network,
+  magicLink: Link,
+  shield: Shield,
+  subscription: DollarSign,
+  invoice: FileText,
+  server: Server,
+  wand: Wand2,
+  shuffle: Shuffle,
+  globe: Globe,
+  bolt: Bolt,
   twitter: ({ ...props }: LucideProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
