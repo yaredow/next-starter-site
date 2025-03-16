@@ -74,13 +74,13 @@ export const Authentication = [
   },
   {
     icon: <Icons.email className="h-8 w-8" />,
-    name: "Email/password authentication",
+    title: "Email/password authentication",
     description:
       "Traditional email/password authentication with secure password hashing and salting.",
   },
   {
     icon: <Icons.magicLink className="h-8 w-8" />,
-    tike: "Magic Links",
+    title: "Magic Links",
     description:
       "A passwordless authentication method that sends a secure link to the user's email.",
   },
