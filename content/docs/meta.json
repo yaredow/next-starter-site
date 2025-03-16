@@ -1,0 +1,9 @@
+{
+  "title": "docs",
+  "icons": {
+    "index": "🚀",
+    "tech-stack": "🛠️",
+    "FAQ": "❓"
+  },
+  "pages": ["index", "tech-stack", "FAQ"]
+}
