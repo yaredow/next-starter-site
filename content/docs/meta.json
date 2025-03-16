@@ -1,4 +1,12 @@
 {
   "title": "docs",
-  "pages": ["index", "tech-stack", "FAQ", "installation"]
+  "pages": [
+    "index",
+    "tech-stack",
+    "faq",
+    "installation",
+    "configuration",
+    "database",
+    "api"
+  ]
 }
