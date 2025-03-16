@@ -1,12 +1,14 @@
-import { source } from '@/lib/source';
+import { source } from "@/lib/source";
 import {
   DocsPage,
   DocsBody,
   DocsDescription,
   DocsTitle,
-} from 'fumadocs-ui/page';
-import { notFound } from 'next/navigation';
-import defaultMdxComponents from 'fumadocs-ui/mdx';
+} from "fumadocs-ui/page";
+import { notFound } from "next/navigation";
+import defaultMdxComponents from "fumadocs-ui/mdx";
+import { Rate } from "@/components/rate";
+import { posthog } from "posthog-js";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -24,6 +26,13 @@ export default async function Page(props: {
       <DocsBody>
         <MDX components={{ ...defaultMdxComponents }} />
       </DocsBody>
+      <Rate
+        onRateAction={async (url, feedback) => {
+          "use server";
+
+          await posthog.capture("on_rate_docs", feedback);
+        }}
+      />
     </DocsPage>
   );
 }

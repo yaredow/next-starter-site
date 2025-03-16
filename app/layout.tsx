@@ -9,6 +9,7 @@ import {
 } from "@/components/seo/structured-data";
 
 import "./global.css";
+import { PostHogProvider } from "@/components/providers/posthog-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,7 +32,9 @@ export default function Layout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
+        <PostHogProvider>
+          <RootProvider>{children}</RootProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
