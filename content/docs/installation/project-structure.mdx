@@ -49,15 +49,30 @@ The **`/app`** directory is the heart of the Next.js **App Router** system. The 
 <Files>
   <Folder name="app" defaultOpen>
     <Folder name="(auth)">
-      <File name="page.tsx" />
+      <Folder name="login">
+        <File name="page.tsx" />
+      </Folder>
+      <Folder name="register">
+        <File name="page.tsx" />
+      </Folder>
+      <Folder name="2fa">
+        <File name="page.tsx" />
+      </Folder>
+      <File name="layout.tsx" />
     </Folder>
     <Folder name="(dashboard)">
       <File name="page.tsx" />
     </Folder>
     <Folder name="(error)">
-      <File name="page.tsx" />
+      <File name="not-found.tsx" />
     </Folder>
     <Folder name="(public)">
+      <Folder name="pricing">
+        <File name="page.tsx" />
+      </Folder>
+      <Folder name="about">
+        <File name="page.tsx" />
+      </Folder>
       <File name="page.tsx" />
     </Folder>
     <Folder name="api">
@@ -65,6 +80,18 @@ The **`/app`** directory is the heart of the Next.js **App Router** system. The 
     </Folder>
     <File name="layout.tsx" />
     <File name="page.tsx" />
+  </Folder>
+</Files>
+
+### `tRPC` Directory
+
+The **`/trpc`** directory contains the tRPC client and server files. tRPC is a TypeScript-first RPC framework that allows you to define your API routes and procedures in a type-safe way.
+
+<Files>
+  <Folder name="trpc" defaultOpen>
+    <File name="client.ts" />
+    <File name="server.ts" />
+    <File name="router.ts" />
   </Folder>
 </Files>
 
