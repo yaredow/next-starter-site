@@ -1,0 +1,65 @@
+---
+title: "development"
+description: "Learn how to set up your development environment for a smoother experience."
+---
+
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
+
+To get started, insure you have the following installed on your local machine:
+
+- [Node.js](https://nodejs.org/en/download/)(20.x or higher)
+- [Docker](https://www.docker.com/products/docker-desktop)(Only if you want to use local database)
+- [pnpm](https://pnpm.io/installation)
+
+## Project development
+
+<Steps>
+  <Step>
+    ### Install Dependecies
+    <DynamicCodeBlock lang="bash" code="pnpm install" />
+    <Card title="Why pnpm?" className="mt-4">
+      `pnpm` is used because it's faster and more efficient than `npm` or
+      `yarn`. It saves disk space and boosts installation speed by using a
+      content-addressable file system to store all packages in a single location
+      on your disk. When you install a package, `pnpm` creates hard links to the
+      packages in this central store, instead of copying them.
+    </Card>
+  </Step>
+  <Step>
+    ### Setup environment variables
+    <Card title="Setup .env file" className="mt-4">
+      You can duplicate the `.env.example` and `.env.local.example` files and
+      rename it to `.env` and `.env.local`. Then, set the variables according to
+      your needs.
+    </Card>
+  </Step>
+<Step>
+    ### Start database
+    <DynamicCodeBlock lang="bash" code="docker compose up -d" />
+    <Card title="Why docker?" className="mt-4">
+        We use `docker` to run a local database. This is optional, but it's
+        recommended if you want to develop locally. If you want to connect to a
+        remote database, you can skip this step and configure the connection
+        details in the `.env` file.
+    </Card>
+</Step>
+
+  <Step>
+    ### Start development server
+    <DynamicCodeBlock lang="bash" code="pnpm run dev" />
+    <Card title="Development server" className="mt-4">
+      This command starts the development server. You can access the application
+      in your browser at `http://localhost:3000`.
+    </Card>
+  </Step>
+  <Step>
+    ### Deploy to production
+    <DynamicCodeBlock lang="bash" code="pnpm run build && pnpm run start" />
+    <Card title="Production deployment" className="mt-4">
+      This command builds the application for production and starts the
+      production server.
+    </Card>
+  </Step>
+</Steps>

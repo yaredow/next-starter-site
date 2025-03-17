@@ -1,0 +1,110 @@
+---
+title: Project structure
+description: Learn about the structure of a typical Redwood project.
+---
+
+import { File, Folder, Files } from "fumadocs-ui/components/files";
+
+This Next.js template uses the App Router introduced in Next.js 15.2, along with a modular file structure to help you scale and organize your application in a maintainable way. The modular structure is designed to keep related components, pages, and logic together, making it easier to manage as your application grows.
+
+Here’s a high-level overview of the project structure:
+
+### `Root` Directory
+
+The `root` directory contains essential configuration files and the foundational structure of the project:
+
+<Files>
+  <Folder name="src">
+    <Folder name="app" defaultOpen>
+      <File name="layout.tsx" />
+      <File name="page.tsx" />
+    </Folder>
+    <Folder name="components">
+      <File name="button.tsx" />
+      <File name="tabs.tsx" />
+      <File name="dialog.tsx" />
+    </Folder>
+    <Folder name="modules">
+      <File name="moduleA.tsx" />
+      <File name="moduleB.tsx" />
+    </Folder>
+    <Folder name="trpc">
+      <File name="client.ts" />
+      <File name="server.ts" />
+      <File name="router.ts" />
+    </Folder>
+  </Folder>
+  <Folder name="public">
+    <File name="vercel.svg" />
+  </Folder>
+  <File name="next.config.js" />
+  <File name="package.json" />
+  <File name="README.md" />
+</Files>
+
+### `app` Directory (App Router)
+
+The **`/app`** directory is the heart of the Next.js **App Router** system. The App Router structure is based on folders and files which automatically map to different routes in your app.
+
+<Files>
+  <Folder name="app" defaultOpen>
+    <Folder name="(auth)">
+      <File name="page.tsx" />
+    </Folder>
+    <Folder name="(dashboard)">
+      <File name="page.tsx" />
+    </Folder>
+    <Folder name="(error)">
+      <File name="page.tsx" />
+    </Folder>
+    <Folder name="(public)">
+      <File name="page.tsx" />
+    </Folder>
+    <Folder name="api">
+      <File name="route.ts" />
+    </Folder>
+    <File name="layout.tsx" />
+    <File name="page.tsx" />
+  </Folder>
+</Files>
+
+### `module` Directory
+
+The **`/modules`** directory contains modules that group related components, hooks, logic, and tRPC procedures together. This structure helps you organize your codebase and scale your application in a maintainable way.
+
+<Files>
+  <Folder name="modules" defaultOpen>
+    <Folder name="users">
+      <Folder name="server">
+        <File name="procedures.ts" />
+      </Folder>
+      <Folder name="ui">
+        <Folder name="layouts">
+          <File name="layoutA.tsx" />
+        </Folder>
+        <Folder name="sections">
+          <File name="sectionA.tsx" />
+        </Folder>
+        <Folder name="views">
+          <File name="viewA.tsx" />
+        </Folder>
+        <Folder name="components">
+          <File name="ComponentA.tsx" />
+        </Folder>
+      </Folder>
+      <Folder name="utils">
+        <File name="helper.ts" />
+      </Folder>
+      <File name="constants.ts" />
+      <File name="schemas.ts" />
+    </Folder>
+  </Folder>
+</Files>
+
+### Conclusion
+
+The modular structure ensures that related pieces of your application (pages, components, hooks, API routes) are grouped together, making it easier to navigate and scale as your app grows. You can freely add more folders or files to this structure based on your needs.
+
+---
+
+Would you like me to convert this overview into MDX format for your documentation?

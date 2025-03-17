@@ -1,0 +1,9 @@
+{
+  "title": "installation",
+  "pages": [
+    "cloning-repository",
+    "editor-setup",
+    "development",
+    "project-structure"
+  ]
+}
