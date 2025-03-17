@@ -114,7 +114,7 @@ export function Rate({
       </div>
       <CollapsibleContent className="mt-3">
         {previous ? (
-          <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-fd-card-foreground text-sm text-center rounded-xl text-fd-muted-foreground">
+          <div className="px-3 py-6 flex flex-col items-center gap-3 bg-fd-card text-sm text-center rounded-xl text-fd-muted-foreground">
             <p>Thank you for your feedback!</p>
             <button
               className={cn(
