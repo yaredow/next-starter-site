@@ -3,7 +3,7 @@ title: Schema
 description: Learn about database schema
 ---
 
-import { Card, Cards } from "fumadocs-ui/components/card";
+import { Callout } from "fumadocs-ui/components/callout";
 
 Defining a schema for your data is a fundamental step in building any new application.
 
@@ -15,11 +15,11 @@ The schema is defined using SQL-like utilities from drizzle-orm.
 
 It supports all the SQL features, such as enums, indexes, foreign keys, extensions and more.
 
-<Card title="Code-first approach">
-  We're using a code-first approach, defining the schema in code and generating
-  SQL from it. This allows for full type-safety and a straightforward flow for
-  database updates and migrations.
-</Card>
+<Callout title="Code-first approach">
+  This template is using a code-first approach, defining the schema in code and
+  generating SQL from it. This allows for full type-safety and a straightforward
+  flow for database updates and migrations.
+</Callout>
 
 ### Example
 

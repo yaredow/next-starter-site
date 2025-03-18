@@ -4,8 +4,15 @@ description: Get started with database
 ---
 
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import { Callout } from "fumadocs-ui/components/callout";
 
 This starter template uses Drizzle as the database. Drizzle is a lightweight, open-source database that provides a simple and efficient way to store and manage data. It's designed to be easy to use and integrate with your Next.js application.
+
+<Callout title="Why Drizzle ORM?">
+  Drizzle ORM is lightweight, type-safe, and ships with zero dependencies. It
+  offers a SQL-first approach with seamless migrations, making database
+  interactions simple and efficient.
+</Callout>
 
 For the database we're leveraging [PostgreSQL](https://www.postgresql.org/), but you could use any other database that Drizzle ORM supports (basically any SQL database e.g. MySQL, SQLite, etc.).
 

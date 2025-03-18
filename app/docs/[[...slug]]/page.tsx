@@ -8,9 +8,9 @@ import {
   DocsTitle,
 } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
-import defaultMdxComponents from "fumadocs-ui/mdx";
 import { Rate } from "@/components/rate";
 import { posthog } from "posthog-js";
+import { Callout } from "fumadocs-ui/components/callout";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -28,6 +28,7 @@ export default async function Page(props: {
       <DocsBody>
         <MDX
           components={{
+            Callout,
             img: (props) => <ImageZoom {...(props as any)} />,
             pre: ({ ref: _ref, ...props }) => (
               <CodeBlock keepBackground {...props}>

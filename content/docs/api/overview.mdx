@@ -2,3 +2,87 @@
 title: Overview
 description: Get started with the API
 ---
+
+import { File, Folder, Files } from "fumadocs-ui/components/files";
+
+In building our Next.js starter template, we evaluated three approaches for handling APIs: Next.js API Routes, Hono, and tRPC. Here's a comparison of each, followed by the rationale for choosing tRPC, particularly emphasizing its authenticated prefetching capabilities introduced in version 11.
+
+### Next.js API routes (App Router)
+
+With the introduction of the App Router, Next.js now allows defining API routes inside server components or as server actions. This brings better integration with React’s data-fetching patterns. However, there are some drawbacks:
+
+    - Limited Type Safety: You need to manually ensure type consistency between client and server, which can lead to errors.
+    - Complex Authentication Handling: Handling authentication requires managing sessions or tokens manually.
+    - No Automatic API Layer: Unlike tRPC, you still need to manually structure your API with fetch calls.
+
+While this approach is great for simple APIs within a Next.js app, it lacks the flexibility of a fully structured API framework.
+
+### Hono
+
+Hono is a lightweight web framework optimized for speed and flexibility. Key benefits include:
+
+- Minimal and Fast: Hono is extremely fast and designed for performance.
+- Cross-Platform Support: It works on various runtimes like Node.js, Bun, Cloudflare Workers, and Deno.
+
+However, Hono lacks built-in type safety and deep integration with Next.js, requiring additional setup to maintain type consistency between client and server.
+
+### tRPC
+
+tRPC allows for fully type-safe APIs without the need for code generation. Its advantages include:
+
+- End-to-End Type Safety: The client and server share the same types, reducing errors.
+- Seamless Next.js Integration: Works natively with Next.js without needing an API layer.
+- Authenticated Prefetching in v11:
+  - A key reason for choosing tRPC is its ability to prefetch authenticated data in Server Components and SSR.
+  - This means protected data can be loaded before rendering, improving performance and user experience.
+
+👉 More on authenticated prefetching: tRPC v11 Docs: [tRPC V11 Docs](https://trpc.io/blog/v11-release#prefetching-with-server-components)
+
+## tRPC structure
+
+All API procedures and routers are defined inside the trpc/ directory. Each feature module is placed inside the `modules/` directory at the project root, with a server/ folder inside each module that exports its own procedures.
+
+<Files>
+  <Folder name="trpc" defaultOpen>
+    <Folder name="routers">
+      <File name="_app.ts" />
+    </Folder>
+    <File name="client.ts" />
+    <File name="server.ts" />
+    <File name="init.ts" />
+  </Folder>
+</Files>
+
+The `trpc/routers/_app.ts` file acts as the central router, importing and combining individual feature routers using createTRPCRouter.
+
+```ts title="_app.ts"
+import { userRouter } from "@/modules/users/server/procedures";
+
+import { createTRPCRouter } from "../init";
+
+export const appRouter = createTRPCRouter({
+  users: userRouter,
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+The API is initialized inside `api/trpc/[trpc]/route.ts`, where fetchRequestHandler from `@trpc/server` is used to expose the tRPC router as a Next.js API route at /api/trpc. This setup enables fully type-safe API communication while leveraging Next.js server functions."
+
+```ts title="api/trpc/[trpc]/route.ts"
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { appRouter } from "@/trpc/routers/_app";
+import { createTRPCContext } from "@/trpc/init";
+
+const handler = (req: Request) =>
+  fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req,
+    router: appRouter,
+    createContext: createTRPCContext,
+  });
+
+export { handler as GET, handler as POST };
+```
+
+You can check this guide on the offical tRPC documentation to read about the integration instruction with Next.js: [tRPC Next.js Integration](https://trpc.io/docs/client/react/server-components)

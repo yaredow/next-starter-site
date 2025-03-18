@@ -31,22 +31,12 @@ Drizzle ORM provides a simple and efficient way to manage database migrations wh
         pnpx drizzle-kit push
         ```
 
+        This executes the SQL migration file and updates the database schema accordingly.
+
     </Step>
     <Step>
         ### Managing Migration Files
-        Drizzle keeps migration files in the `drizzle/migrations` directory. Each file is timestamped to track schema changes in order. If you need to manually modify a migration, you can edit the SQL before applying it.
-
-        ```bash
-        pnpx drizzle-kit rollback
-        ```
-
-        This command:
-
-        - Compares the current schema with the database state.
-        - Generates a SQL migration file inside the drizzle/migrations folder.
-        - Ensures schema changes are explicitly defined in SQL.
-
-        This executes the SQL migration file and updates the database schema accordingly.
+        Drizzle keeps migration files in the drizzle/migrations directory. Each file is timestamped to track schema changes in order. If you need to manually modify a migration, you can edit the SQL before applying it.
 
     </Step>
     <Step>
