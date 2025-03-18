@@ -1,4 +1,9 @@
 {
   "title": "api",
-  "pages": ["overview", "create-new-procedure"]
+  "pages": [
+    "overview",
+    "create-new-procedure",
+    "protected-procedure",
+    "rate-limiting"
+  ]
 }
