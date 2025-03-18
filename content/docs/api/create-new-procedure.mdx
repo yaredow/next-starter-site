@@ -1,0 +1,95 @@
+---
+title: Creating a New Procedure
+description: Learn how to create a new procedure in your tRPC API
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+
+## Understanding tRPC Procedures
+
+tRPC procedures are typed functions on your server that you can call directly from your client. They are the fundamental unit of your tRPC API.
+
+**Key Differences:**
+
+- **Traditional API Endpoints (Hono/Next.js API Routes):** Define separate routes, handle HTTP methods, manually parse requests/responses, and rely on manual type validation.
+- **tRPC Procedures:** Define functions on your tRPC router, use a single API endpoint, call procedures by name, and automatically handle request parsing, validation, and serialization with end-to-end type safety.
+
+**Key Advantages of tRPC Procedures:**
+
+- **Type Safety:** Automatic type inference ensures client and server are in sync.
+- **Code Generation:** Generates TypeScript types and client-side helpers.
+- **Simplified API Design:** Focus on API logic, not HTTP complexities.
+- **Improved Developer Experience:** Easier and faster API development.
+
+**In summary:** With tRPC, you create API _procedures_ (functions you call directly from your client) instead of API _endpoints_. tRPC handles the HTTP communication, letting you focus on your application's core logic.
+
+To define a new procedure follow the following steps:
+
+<Steps>
+    <Step>
+        ### Create a Module Directory
+
+        Create a new folder inside the `modules` directory to organize your feature's code (e.g., `modules/users`). This helps keep your project modular and maintainable.
+    </Step>
+
+    <Step>
+        ### Create Procedures File
+
+        Inside the new module directory (e.g., `modules/users`), create a `server/procedures.ts` file. This file will contain the tRPC procedures for your module.
+    </Step>
+
+    <Step>
+        ### Define the Router and Procedures
+
+        In `server/procedures.ts`, define a tRPC router (e.g., `userRouter`) using `createTRPCRouter`. Then, define the individual procedures (e.g., `getUser`, `createUser`) within that router.
+
+        ```ts title="modules/users/server/procedures.ts"
+        import { z } from "zod";
+
+        import { createTRPCRouter, publicProcedure } from "@/trpc/init";
+
+        export const userRouter = createTRPCRouter({
+            getUser: publicProcedure
+                .input(z.object({ id: z.string() }))
+                .query(({ input }) => {
+                    // Your logic to fetch a user by ID
+                    return { id: input.id, name: "Example User" };
+                }),
+            createUser: publicProcedure
+                .input(z.object({ name: z.string() }))
+                .mutation(({ input }) => {
+                    // Your logic to create a new user
+                    return { name: input.name, id: "new-user-id" };
+                }),
+        });
+        ```
+
+        -   `createTRPCRouter`:  Creates a new tRPC router.
+        -   `publicProcedure`:  Creates a procedure that can be accessed without authentication.
+        -   `input`:  Defines the input schema for the procedure using Zod.
+        -   `query`:  Specifies that this procedure is a query (for fetching data).
+        -   `mutation`: Specifies that this procedure is a mutation (for creating, updating, or deleting data).
+    </Step>
+
+    <Step>
+        ### Register the Router in Root
+
+        Import the newly created router into your main tRPC router (`server/api/root.ts`) and add it to the `createTRPCRouter` call. This makes your procedures accessible via the tRPC API.
+
+        ```ts title="trpc/routes/_app.ts"
+        import { userRouter } from "@/modules/users/server/procedures";
+
+        import { createTRPCRouter } from ".../init";
+
+        export const appRouter = createTRPCRouter({
+            users: userRouter,
+        });
+
+        export type AppRouter = typeof appRouter;
+        ```
+    </Step>
+
+</Steps>
+
+That's it! By following these steps, you can create new procedures in your tRPC API. This allows you to define typed functions that can be called directly from your client, simplifying your API development process.
