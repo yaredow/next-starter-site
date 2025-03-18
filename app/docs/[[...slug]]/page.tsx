@@ -1,3 +1,5 @@
+import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock";
+import { ImageZoom } from "fumadocs-ui/components/image-zoom";
 import { source } from "@/lib/source";
 import {
   DocsPage,
@@ -24,7 +26,16 @@ export default async function Page(props: {
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents }} />
+        <MDX
+          components={{
+            img: (props) => <ImageZoom {...(props as any)} />,
+            pre: ({ ref: _ref, ...props }) => (
+              <CodeBlock keepBackground {...props}>
+                <Pre>{props.children}</Pre>
+              </CodeBlock>
+            ),
+          }}
+        />
       </DocsBody>
       <Rate
         onRateAction={async (url, feedback) => {

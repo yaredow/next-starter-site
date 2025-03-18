@@ -2,3 +2,50 @@
 title: Overview
 description: Get started with database
 ---
+
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+
+This starter template uses Drizzle as the database. Drizzle is a lightweight, open-source database that provides a simple and efficient way to store and manage data. It's designed to be easy to use and integrate with your Next.js application.
+
+For the database we're leveraging [PostgreSQL](https://www.postgresql.org/), but you could use any other database that Drizzle ORM supports (basically any SQL database e.g. MySQL, SQLite, etc.).
+
+## Setup
+
+To start interacting with the database you first need to ensure that your database instance is up and running.
+
+<Tabs items={["Local development", "Cloud instance"]}>
+    <Tab value="Local development">
+        ### Local development
+
+        1.  Install [Docker](https://www.docker.com/products/docker-desktop/)
+        2.  Run `docker compose up -d` in the root of the project. This will start a local PostgreSQL instance.
+        3.  Ensure the environment variables in your `.env` file are configured to point to your local database. The connection string is as following:
+            ```
+            # The database URL is used to connect to your database.
+            DATABASE_URL="postgresql://postgres:postgres@localhost:3000/postgres"
+            ```
+    </Tab>
+    <Tab value="Cloud instance">
+        ### Cloud instance
+
+        1.  Create a PostgreSQL instance in your cloud provider of choice (e.g. Neon, AWS, Google Cloud, Azure).
+        2.  Ensure the environment variables in your `.env` file are configured to point to your cloud database.
+        3.  If you're deploying to a serverless environment, make sure your database connection is configured to use connection pooling.
+
+    </Tab>
+
+</Tabs>
+
+## Studio
+
+Drizzle ORM also provides you with an interactive UI where you can explore your database and test queres callded Studio
+
+To run the Studio, you can use the following command:
+
+```
+pnpx drizzle-kit studio
+```
+
+This will start the Studio on [`https://local.drizzle.studio`](https://local.drizzle.studio).
+
+![Drizzle Studio](/images/drizzle-image.png)

@@ -1,4 +1,107 @@
 ---
-title: Environment Variables
+title: configuration
 description: Learn how to configure environment variabe
 ---
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
+import { Card } from "fumadocs-ui/components/card";
+
+## Setting Up Environment Variables
+
+Environment variables are key-value pairs that allow you to configure your Next.js application's behavior without hardcoding sensitive information or settings directly into your code. This approach enhances security and flexibility across different environments, such as development, staging, and production.
+
+In this starter template, two example files are provided to help you set up your environment variables:
+
+- **`.env.example`**: Contains the list of required environment variables with placeholder values, serving as a template for creating your own environment files.
+- **`.env.local.example`**: May include additional or specific environment variables for local development, also with placeholder values.
+
+<Steps>
+    <Step>
+        ### Copy the Example File Create a new file named `.env.local` by copying
+        `.env.example` in the root of your project:
+
+        ```bash
+        cp .env.example .env.local
+        ```
+    </Step>
+    <Step>
+        ### Fill in the Values Open `.env.local` in a text editor and replace the
+        placeholder values with your actual values. For example:
+        ```plaintext
+        # In .env.example
+        API_KEY=your_api_key_here
+
+        # In .env.local
+        API_KEY=abc123xyz
+        ```
+    </Step>
+    <Step>
+        ### Understand Variable Scope
+        <Card title="Variable Scope" className="mt-4">
+            - **Server-side Variables**: By default, environment variables are only
+            available on the server side. Use these for sensitive data like API keys
+            or database credentials. - **Client-side Variables**: To expose a variable
+            to the browser (e.g., a public API URL), prefix it with `NEXT_PUBLIC_`.
+        </Card>
+        ```plaintext
+        NEXT_PUBLIC_API_URL=https://api.example.com
+        ```
+        <Card title="Important" className="mt-4">
+            Never expose sensitive information via `NEXT_PUBLIC_` variables, as they
+            become accessible in the client-side code.
+        </Card>
+    </Step>
+    <Step>
+        ### Access Variables in Your Code - For server-side variables: Use
+        `process.env.VARIABLE_NAME`. - For client-side variables: Use
+        `process.env.NEXT_PUBLIC_VARIABLE_NAME` in your components.
+        ```javascript
+        // Server-side only
+        const apiKey = process.env.API_KEY;
+
+        // Client-side accessible
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        ```
+    </Step>
+    <Step>
+        ### Handle Production Environments For production deployments (e.g., on
+        Vercel or Netlify), set environment variables through your hosting
+        platform's dashboard or configuration settings. Avoid committing sensitive
+        data to your repository.
+    </Step>
+    <Step>
+        ### Additional Notes
+        <Card title=".env.local Security" className="mt-4">
+            This file is automatically ignored by Git (per `.gitignore`), ensuring
+            sensitive data stays local and uncommitted.
+        </Card>
+        <Card title="Shared Variables" className="mt-4">
+            If you have non-sensitive variables to share across environments, you can
+            create a `.env` file and commit it. However, for sensitive data, rely on
+            `.env.local` locally and platform settings in production.
+        </Card>
+    </Step>
+    <Step>
+        ### Restart Your Development Server After updating `.env.local`, restart
+        your Next.js development server to apply the changes:
+        ```bash
+        pnpm dev
+        ```
+    </Step>
+    <Step>
+        ### Optional: Differentiate `.env` and `.env.local`
+        In Next.js projects, environment variables are typically stored in `.env.local`.
+        The `.env` file is reserved for the database URL.
+    </Step>
+
+</Steps>
+
+---
+
+By following these steps, you’ll securely manage your application’s configuration and sensitive information across all environments. Happy coding!
+
+The `.env.local.example` file may provide additional guidance or example values for local development. Refer to it if you need examples beyond what’s in `.env.example`, but use `.env.local` as your primary local configuration file.
+
+---
+
+By following these steps, you’ll securely manage your application’s configuration and sensitive information across all environments. Happy coding!
