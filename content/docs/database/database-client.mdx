@@ -1,0 +1,140 @@
+---
+title: Database client
+description: Use database client to interact with database
+---
+
+import { Card } from "fumadocs-ui/components/card";
+
+The database client is an instance of the Drizzle client, automatically typed based on the defined schema. It is exposed as the db object and used throughout the application to interact with the database.
+
+This guide covers how to initialize the client and perform basic operations such as querying, creating, updating, and deleting records. For more details, refer to the official Drizzle documentation.
+
+## Initializing the clinet
+
+Pass the validated DATABASE_URL to the client to initialize it.
+
+```ts title="db/index.ts"
+import { drizzle } from "drizzle-orm/node-postgres";
+import "dotenv/config";
+
+export const db = drizzle(process.env.DATABASE_URL!);
+```
+
+Now it's exported from the `db/index.ts` package and can be used across the codebase (server-side).
+
+## Querying data
+
+In tRPC procedures, the db instance from Drizzle ORM is used to interact with the database. Since Drizzle provides fully typed queries, it ensures type safety across the backend and frontend when combined with tRPC.
+
+A typical tRPC query procedure retrieves data by calling db inside a resolver function. This allows fetching, filtering, and returning database records efficiently while keeping the API strongly typed.
+
+```ts title="modules/users/server/procedure.ts"
+import {eq} from "drizzle-orm";
+import {z} from "zod";
+
+import { createTRPCRouter } from "@trpc/init";
+import {TRPCError} from "@trpc/server";
+import {user } from from "@/db/schema"
+import {db} from "@/db"
+
+export const userRouter = createTRPCRouter({
+  getUser: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx }) => {
+      const { userId: id } = ctx;
+
+      if (!id) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      const [userData] = await db.select().from(user).where(eq(user.id, id));
+
+      return userData;
+    }),
+)};
+```
+
+<div className="flex flex-row space-x-4">
+  <Card
+    title="Select"
+    href="https://orm.drizzle.team/docs/select"
+    className="flex-grow w-full"
+  >
+    orm.drizzle.team
+  </Card>
+  <Card
+    title="Filter"
+    href="https://orm.drizzle.team/docs/operators"
+    className="flex-grow w-full"
+  >
+    orm.drizzle.team
+  </Card>
+  <Card
+    title="Join"
+    href="https://orm.drizzle.team/docs/joins"
+    className="flex-grow w-full"
+  >
+    orm.drizzle.team
+  </Card>
+</div>
+
+## Mutating data
+
+You can use the exported utilities to mutate data. Insert, update or delete records in fast and fully type-safe way:
+
+```ts title="modules/users/server/procedure.ts"
+import { z } from "zod";
+
+import { createTRPCRouter, publicProcedure } from "@trpc/init";
+import { users } from "@/db/schema";
+import { db } from "@/db";
+
+export const userRouter = createTRPCRouter({
+  createUser: publicProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        email: z.string().email(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const newUser = await db
+        .insert(users)
+        .values({
+          name: input.name,
+          email: input.email,
+        })
+        .returning();
+
+      return newUser[0];
+    }),
+});
+```
+
+<div className="flex flex-row space-x-4">
+  <Card
+    title="Insert"
+    href="https://orm.drizzle.team/docs/insert"
+    className="flex-grow w-full"
+  >
+    orm.drizzle.team
+  </Card>
+  <Card
+    title="Update"
+    href="https://orm.drizzle.team/docs/update"
+    className="flex-grow w-full"
+  >
+    orm.drizzle.team
+  </Card>
+  <Card
+    title="Delete"
+    href="https://orm.drizzle.team/docs/delete"
+    className="flex-grow w-full"
+  >
+    orm.drizzle.team
+  </Card>
+</div>

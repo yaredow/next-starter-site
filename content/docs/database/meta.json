@@ -1,4 +1,4 @@
 {
   "title": "database",
-  "pages": ["overview", "schema", "migrations"]
+  "pages": ["overview", "schema", "migrations", "database-client"]
 }
