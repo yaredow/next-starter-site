@@ -1,0 +1,61 @@
+---
+title: Schema
+description: Learn about database schema
+---
+
+import { Card, Cards } from "fumadocs-ui/components/card";
+
+Defining a schema for your data is a fundamental step in building any new application.
+
+You can find the schema definitions for each table in the `src/db/schema` directory. The schema is structured by entity, with each file representing a separate table.
+
+## Defining schema
+
+The schema is defined using SQL-like utilities from drizzle-orm.
+
+It supports all the SQL features, such as enums, indexes, foreign keys, extensions and more.
+
+<Card title="Code-first approach">
+  We're using a code-first approach, defining the schema in code and generating
+  SQL from it. This allows for full type-safety and a straightforward flow for
+  database updates and migrations.
+</Card>
+
+### Example
+
+```ts title="Schema.ts"
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull(),
+  image: text("image"),
+  twoFactorEnabled: boolean("two_factor_enabled"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  stripeCustomerId: text("stripe_customer_id"),
+});
+```
+
+We're using a few native SQL utilities here, such as:
+
+- `pgTable`: This function is used to define a PostgreSQL table schema. It takes the table name as the first argument and an object defining the table columns and constraints as the second argument.
+
+- `text`: This function defines a text column in the table schema. It takes the column name as the first argument and can be chained with methods like `.notNull()` and `.unique()` to add constraints.
+
+- `boolean`: This function defines a boolean column in the table schema. It takes the column name as the first argument and can be chained with the `.notNull()` method to add a constraint.
+
+- `timestamp`: This function defines a timestamp column in the table schema, typically used for storing date and time values. It takes the column name as the first argument and can be chained with the `.notNull()` method to add a constraint.
+
+Furthermore, Drizzle allows us to export TypeScript types for the table, which can be reused, for example, in API calls.
+
+Additionally, we can use the Drizzle extension drizzle-zod to generate Zod schemas for the table.
+
+```ts title="Schema.ts"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+
+export const userCreateSchema = createSelectSchema(user);
+export const userInsertSchema = createInsertSchema(user);
+```
+
+Then we can use the generated schemas in the frontend forms to validate the data.

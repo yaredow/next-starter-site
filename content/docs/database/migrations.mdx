@@ -1,0 +1,63 @@
+---
+title: Migrations
+description: Learn how to manage database migrations
+---
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
+
+## Handling migration in Drizzle ORM
+
+Drizzle ORM provides a simple and efficient way to manage database migrations while keeping schema changes version-controlled. Unlike traditional ORMs that rely on complex migration files, Drizzle focuses on a TypeScript-first approach, ensuring better type safety and DX.
+
+<Steps>
+    <Step>
+        ### Generating migration
+        Drizzle allows you to define your schema using TypeScript and generate migration files based on changes. To create a migration, you typically run:
+
+        ```bash
+        pnpx drizzle-kit generate
+        ```
+    This command:
+
+    - Compares the current schema with the database state.
+    - Generates a SQL migration file inside the drizzle/migrations folder.
+    - Ensures schema changes are explicitly defined in SQL.
+    </Step>
+    <Step>
+        ### Applying migration
+        Once a migration file is generated, you need to apply it to your database:
+
+        ```bash
+        pnpx drizzle-kit push
+        ```
+
+    </Step>
+    <Step>
+        ### Managing Migration Files
+        Drizzle keeps migration files in the `drizzle/migrations` directory. Each file is timestamped to track schema changes in order. If you need to manually modify a migration, you can edit the SQL before applying it.
+
+        ```bash
+        pnpx drizzle-kit rollback
+        ```
+
+        This command:
+
+        - Compares the current schema with the database state.
+        - Generates a SQL migration file inside the drizzle/migrations folder.
+        - Ensures schema changes are explicitly defined in SQL.
+
+        This executes the SQL migration file and updates the database schema accordingly.
+
+    </Step>
+    <Step>
+        ### Rolling Back Migrations
+        Drizzle does not provide built-in rollback functionality like some ORMs. If you need to revert a migration, you must manually create a down migration or restore from a database backup.
+    </Step>
+
+</Steps>
+
+## Best practices
+
+- **Keep schema files and migrations in sync**: Always generate migrations when changing the schema file.
+- **Version control migrations**: Commit generated SQL files to track changes over time.
+- **Test migrations locally**: Run migrations on a local database before applying them in production.
