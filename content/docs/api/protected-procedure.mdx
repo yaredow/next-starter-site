@@ -10,163 +10,130 @@ import { Steps, Step } from "fumadocs-ui/components/steps";
 
 In many applications, you'll need certain API procedures to be accessible only to authenticated users. These are called "protected procedures." Unlike public procedures, which are open to anyone, protected procedures require the user to be logged in and, optionally, have specific permissions.
 
-This guide will walk you through the process of creating protected procedures in your tRPC API, ensuring that sensitive data and functionality are only accessible to authorized users.
+# Protected Procedures in tRPC
 
-<Steps>
-    <Step>
-        ### Extend the tRPC Context
+**Description**: Understand how protected procedures work in your tRPC API to restrict access to authenticated users only.
 
-        The first step is to extend the tRPC context to include user information. This involves fetching user data (e.g., from a session or authentication headers) and adding it to the context object. This makes the user data available to your procedures.
+## What Are Protected Procedures?
 
-        ```ts title="trpc/init.ts"
-        import { initTRPC } from "@trpc/server";
-        import { TRPCError } from "@trpc/server";
-        import { auth } from "@/auth"; // Assuming you have an auth module
-        import { headers } from "next/headers";
-        import { cache } from "react";
-        import superjson from "superjson";
-        import { db } from "@/db";
-        import { user } from "@/db/schema";
-        import { eq } from "drizzle-orm";
+Protected procedures in tRPC are API endpoints that require user authentication. Unlike public procedures, which anyone can access, protected procedures ensure that only logged-in users can interact with them. This is useful for securing sensitive data or actions in your Next.js application.
 
-        export const createTRPCContext = cache(async () => {
-            const session = await auth.api.getSession({ headers: await headers() });
-            const user = session?.user;
+Your starter template already includes a fully functional `protectedProcedure`. This guide explains how it’s set up and how you can use it in your own routers.
 
-            return { userId: user?.id };
-        });
+---
 
-        export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
+## How It Works
 
-        const t = initTRPC.context<Context>().create({
-            transformer: superjson,
-        });
+The setup for protected procedures is pre-configured in the starter template. Here’s a breakdown of the key components:
 
-        export const router = t.router;
-        export const publicProcedure = t.procedure;
-        ```
+### 1. Extended tRPC Context
 
-        **Explanation:**
+The tRPC context is extended to include the authenticated user’s ID. This happens in `trpc/init.ts`:
 
-        *   We import necessary modules, including your authentication module (`@/auth`).
-        *   We use `auth.api.getSession` to retrieve the user's session.
-        *   We extract the user object from the session.
-        *   We return an object containing the `userId` (or `undefined` if the user is not logged in) as part of the context.
-    </Step>
+```ts title="trpc/init.ts"
+export const createTRPCContext = async () => {
+  const session = await auth.api.getSession({ headers: await headers() });
+  return { userId: session?.user?.id };
+};
+```
 
-    <Step>
-        ### Create a Protected Procedure Middleware
+- **What it does**: Fetches the user’s session and adds their `userId` to the context.
+- **Why it matters**: This makes user information available to all procedures.
 
-        Now, let's create a middleware that checks for user authentication. This middleware will be applied to any procedure that requires authentication.
+### 2. Authentication Middleware
 
-        ```ts title="trpc/init.ts"
-        // Make sure to import the modules from the previous step
-        const middleware = t.middleware;
-        const isAuthed = middleware(async (opts) => {
-            const { ctx } = opts;
+A middleware called `isAuthed` checks if a user is authenticated:
 
-            if (!ctx.userId) {
-                throw new TRPCError({ code: "UNAUTHORIZED" });
-            }
+```ts
+const isAuthed = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+  const [user] = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, ctx.userId));
+  if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
+  return next({ ctx: { ...ctx, user } });
+});
+```
 
-            const [loggedInUser] = await db
-                .select()
-                .from(user)
-                .where(eq(user.id, ctx.userId))
-                .limit(1);
+- **What it does**: Ensures the `userId` exists and the user is valid in the database.
+- **Result**: Adds the full `user` object to the context for use in procedures.
 
-            if (!loggedInUser) {
-                throw new TRPCError({ code: "UNAUTHORIZED" });
-            }
+### 3. Protected Procedure Definition
 
-            return opts.next({
-                ctx: {
-                    ...ctx,
-                    user: loggedInUser,
-                },
-            });
-        });
+The `protectedProcedure` is created by applying the `isAuthed` middleware:
 
-        ```
+```ts title="trpc/init.ts"
+export const protectedProcedure = t.procedure.use(isAuthed);
+```
 
-        **Explanation:**
+- **What it does**: Combines the base procedure with the authentication check.
+- **Usage**: Use this instead of `publicProcedure` for protected endpoints.
 
-        *   We define a middleware called `isAuthed` using `t.middleware`.
-        *   Inside the middleware, we check if `ctx.userId` exists. If not, we throw an `UNAUTHORIZED` error.
-        *   If `ctx.userId` exists, we query the database to retrieve the user's data.
-        *   If the user is not found in the database, we throw an `UNAUTHORIZED` error.
-        *   If the user is found, we call `opts.next` to continue the procedure execution and add the user object to the context.
-        *   Finally, we create a `protectedProcedure` by applying the `isAuthed` middleware to the base `t.procedure`.
-    </Step>
+### 4. Example in Action
 
-    <Step>
-        ### Define the Protected Procedure
+The starter template includes an example in `modules/users/server/procedures.ts`:
 
-        Now that you've created the `protectedProcedure`, let's define a procedure using it. This is where you'll use the `protectedProcedure` to create a specific API endpoint.
+```ts title="modules/users/server/procedures.ts"
+export const userRouter = router({
+  getUser: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const [userData] = await db
+        .select()
+        .from(userTable)
+        .where(eq(userTable.id, input.id));
+      if (!userData) throw new TRPCError({ code: "NOT_FOUND" });
+      return userData;
+    }),
+});
+```
 
-        ```ts title="trpc/init.ts"
-        // Make sure to import the modules from the previous step
-        export const protectedProcedure = t.procedure.use(isAuthed);
-        ```
+- **What it does**: Fetches user data by ID, but only for authenticated users.
+- **Key feature**: `ctx.user` contains the authenticated user’s data.
 
-        **Explanation:**
+---
 
-        *   We create a `protectedProcedure` by applying the `isAuthed` middleware to the base `t.procedure`.
-    </Step>
+## Using Protected Procedures
 
-    <Step>
-        ### Use the Protected Procedure in a Router
+Since `protectedProcedure` is already set up, you can use it directly in your routers. Here’s how to create a new protected endpoint:
 
-        Now that you've defined the `protectedProcedure`, you can use it in your tRPC routers to protect specific procedures.
+### Example: Update User Profile
 
-        ```ts title="modules/users/server/procedures.ts"
-        import { eq } from "drizzle-orm";
-        import { z } from "zod";
+```ts
+export const userRouter = router({
+  updateProfile: protectedProcedure
+    .input(z.object({ name: z.string(), email: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await db
+        .update(userTable)
+        .set({ name: input.name, email: input.email })
+        .where(eq(userTable.id, ctx.user.id));
+      return { success: true };
+    }),
+});
+```
 
-        import { protectedProcedure, router } from "@/server/api/trpc";
-        import { TRPCError } from "@trpc/server";
-        import { db } from "@/db";
-        import { user } from "@/db/schema";
+- **Steps**:
 
-        export const userRouter = router({
-            getUser: protectedProcedure
-                .input(z.object({ id: z.string() }))
-                .query(async ({ ctx, input }) => {
-                    const { id } = input;
-                    const { user: loggedInUser } = ctx;
+  1. Use `protectedProcedure` instead of `publicProcedure`.
+  2. Access the authenticated user via `ctx.user`.
+  3. Add your logic (e.g., update the database).
 
-                    try {
-                        const [userData] = await db
-                            .select()
-                            .from(user)
-                            .where(eq(user.id, id));
+- **Result**: Only the authenticated user can update their own profile.
 
-                        if (!userData) {
-                            throw new TRPCError({ code: "NOT_FOUND" });
-                        }
+---
 
-                        return userData;
-                    } catch (error) {
-                        console.error(error);
-                        throw new TRPCError({
-                            code: "INTERNAL_SERVER_ERROR",
-                            message: "Failed to fetch user data",
-                        });
-                    }
-                }),
-        });
-        ```
+## Tips & Notes
 
-        **Explanation:**
+- **Pre-Configured**: The `protectedProcedure` is ready to use in the starter template—check `trpc/init.ts` for details.
+- **Customization**: Modify the `isAuthed` middleware in `trpc/init.ts` if you need different authentication logic.
+- **Public Endpoints**: Use `publicProcedure` for routes that don’t require authentication.
 
-        *   We import `protectedProcedure` and `router` from your tRPC initialization file.
-        *   We use `protectedProcedure` instead of `publicProcedure` when defining the `getUser` procedure.
-        *   Inside the procedure, we can access the authenticated user's information from `ctx.user`.
-        *   We fetch the user data from the database based on the provided `id`.
-        *   If the user data is not found, we throw a `NOT_FOUND` error.
-        *   We return the user data.
-    </Step>
+<Callout type="info">
+  New to tRPC? The starter template’s example in
+  `modules/users/server/procedures.ts` is a great place to see protected
+  procedures in action!
+</Callout>
 
-</Steps>
-
-That's it. You just created a protected procedure in your tRPC API. Now, only authenticated users can access this procedure, ensuring that sensitive data is protected from unauthorized access.
+---
