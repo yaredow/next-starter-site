@@ -91,10 +91,6 @@ This guide will walk you through setting up rate limiting in your tRPC API using
         *   The `enforceUserIsAuthed` middleware checks if the user has exceeded the rate limit.
         *   If the rate limit is exceeded, a `TOO_MANY_REQUESTS` error is thrown.
         *   The `protectedProcedure` is pre-configured with this middleware.
-
-        <Callout type="info">
-            This step is already implemented in the starter template. The `protectedProcedure` is pre-configured with rate limiting.
-        </Callout>
     </Step>
 
     <Step>

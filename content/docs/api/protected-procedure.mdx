@@ -26,71 +26,89 @@ Your starter template already includes a fully functional `protectedProcedure`. 
 
 The setup for protected procedures is pre-configured in the starter template. Here’s a breakdown of the key components:
 
-### 1. Extended tRPC Context
+<Steps>
+    <Step>
+        ### 1. Extended tRPC Context
 
-The tRPC context is extended to include the authenticated user’s ID. This happens in `trpc/init.ts`:
+        The tRPC context is extended to include the authenticated user’s ID. This happens in `trpc/init.ts`:
 
-```ts title="trpc/init.ts"
-export const createTRPCContext = async () => {
-  const session = await auth.api.getSession({ headers: await headers() });
-  return { userId: session?.user?.id };
-};
-```
+        ```ts title="trpc/init.ts"
+        export const createTRPCContext = async () => {
+          const session = await auth.api.getSession({ headers: await headers() });
+          return { userId: session?.user?.id };
+        };
+        ```
 
-- **What it does**: Fetches the user’s session and adds their `userId` to the context.
-- **Why it matters**: This makes user information available to all procedures.
+        - **What it does**: Fetches the user’s session and adds their `userId` to the context.
+        - **Why it matters**: This makes user information available to all procedures.
+    </Step>
 
-### 2. Authentication Middleware
+    <Step>
+        ### 2. Authentication Middleware
 
-A middleware called `isAuthed` checks if a user is authenticated:
+        A middleware called `isAuthed` checks if a user is authenticated:
 
-```ts
-const isAuthed = t.middleware(async ({ ctx, next }) => {
-  if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-  const [user] = await db
-    .select()
-    .from(userTable)
-    .where(eq(userTable.id, ctx.userId));
-  if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
-  return next({ ctx: { ...ctx, user } });
-});
-```
+        ```ts
+        const isAuthed = t.middleware(async ({ ctx, next }) => {
+          if (!ctx.userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+          const [user] = await db
+            .select()
+            .from(userTable)
+            .where(eq(userTable.id, ctx.userId));
+          if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
+          return next({ ctx: { ...ctx, user } });
+        });
+        ```
 
-- **What it does**: Ensures the `userId` exists and the user is valid in the database.
-- **Result**: Adds the full `user` object to the context for use in procedures.
+        - **What it does**: Ensures the `userId` exists and the user is valid in the database.
+        - **Result**: Adds the full `user` object to the context for use in procedures.
+    </Step>
 
-### 3. Protected Procedure Definition
+    <Step>
+        ### 3. Protected Procedure Definition
 
-The `protectedProcedure` is created by applying the `isAuthed` middleware:
+        The `protectedProcedure` is created by applying the `isAuthed` middleware:
 
-```ts title="trpc/init.ts"
-export const protectedProcedure = t.procedure.use(isAuthed);
-```
+        ```ts title="trpc/init.ts"
+        export const protectedProcedure = t.procedure.use(isAuthed);
+        ```
 
-- **What it does**: Combines the base procedure with the authentication check.
-- **Usage**: Use this instead of `publicProcedure` for protected endpoints.
+        - **What it does**: Combines the base procedure with the authentication check.
+        - **Usage**: Use this instead of `publicProcedure` for protected endpoints.
+    </Step>
 
-### 4. Example in Action
+    <Step>
+        ### 4. Example in Action
 
-The starter template includes an example in `modules/users/server/procedures.ts`:
+        The starter template includes an example in `modules/users/server/procedures.ts`:
 
-```ts title="modules/users/server/procedures.ts"
-export const userRouter = router({
-  getUser: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const [userData] = await db
-        .select()
-        .from(userTable)
-        .where(eq(userTable.id, input.id));
-      if (!userData) throw new TRPCError({ code: "NOT_FOUND" });
-      return userData;
-    }),
-});
-```
+        ```ts title="modules/users/server/procedures.ts"
+        export const userRouter = router({
+          getUser: protectedProcedure
+            .input(
+              z.object({
+                id: z.string(),
+              }),
+            )
+            .query(async ({ ctx }) => {
+              const { userId: id } = ctx;
 
-- **What it does**: Fetches user data by ID, but only for authenticated users.
-- **Key feature**: `ctx.user` contains the authenticated user’s data.
+              if (!id) {
+                throw new TRPCError({ code: "UNAUTHORIZED" });
+              }
+
+              const [userData] = await db.select().from(user).where(eq(user.id, id));
+
+              return userData;
+            }),
+        });
+        ```
+
+        - **What it does**: Fetches user data by ID, but only for authenticated users.
+        - **Key feature**: `ctx.user` contains the authenticated user’s data.
+    </Step>
+
+</Steps>
 
 ---
 
@@ -122,8 +140,6 @@ export const userRouter = router({
 
 - **Result**: Only the authenticated user can update their own profile.
 
----
-
 ## Tips & Notes
 
 - **Pre-Configured**: The `protectedProcedure` is ready to use in the starter template—check `trpc/init.ts` for details.
@@ -135,5 +151,3 @@ export const userRouter = router({
   `modules/users/server/procedures.ts` is a great place to see protected
   procedures in action!
 </Callout>
-
----
