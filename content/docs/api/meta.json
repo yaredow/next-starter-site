@@ -4,6 +4,8 @@
     "overview",
     "create-new-procedure",
     "protected-procedure",
-    "rate-limiting"
+    "rate-limiting",
+    "data-fetching",
+    "mutation"
   ]
 }
