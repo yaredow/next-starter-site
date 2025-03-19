@@ -2,3 +2,135 @@
 title: Rate Limiting
 description: Learn how to add rate limiting to requests in your tRPC API
 ---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+
+## Understanding Rate Limiting
+
+Rate limiting is a technique used to control the number of requests a user or client can make to an API within a specific time period. This helps prevent abuse, protect your server from overload, and ensure fair usage for all users.
+
+This guide will walk you through setting up rate limiting in your tRPC API using the pre-configured Upstash Redis integration in this starter template.
+
+## Prerequisites
+
+- An Upstash Redis account.
+
+## Setup
+
+<Steps>
+    <Step>
+        ### Obtain Upstash Redis Credentials
+
+        1.  Create an account on [Upstash](https://upstash.com/).
+        2.  Create a new Redis database in Upstash.
+        3.  Navigate to the database's "REST API" section.
+        4.  Copy the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` values.
+
+    </Step>
+
+    <Step>
+        ### Configure Environment Variables
+
+        1.  Open your project's `.env` file.
+        2.  Add the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` environment variables, using the values you copied from Upstash:
+
+        ```
+        UPSTASH_REDIS_REST_URL=<your_upstash_redis_rest_url>
+        UPSTASH_REDIS_REST_TOKEN=<your_upstash_redis_rest_token>
+        ```
+
+        <Callout type="warning">
+            **Important:** Do not commit your `.env` file to your Git repository. This file contains sensitive credentials.
+        </Callout>
+    </Step>
+
+    <Step>
+        ### Apply Rate Limiting to a Procedure
+
+        The starter template includes a `rateLimit` utility that you can use to apply rate limiting to your tRPC procedures.
+
+        ```ts title="trpc//init.ts"
+        export const protectedProcedure = t.procedure.use(
+            async function isAuthed(opts) {
+                const { ctx } = opts;
+
+                if (!ctx.userId) {
+                    throw new TRPCError({ code: "UNAUTHORIZED" });
+                }
+
+                const [loggedInUser] = await db
+                    .select()
+                    .from(user)
+                    .where(eq(user.id, ctx.userId))
+                    .limit(1);
+
+                if (!loggedInUser) {
+                    throw new TRPCError({ code: "UNAUTHORIZED" });
+                }
+
+                const { success } = await ratelimit.limit(loggedInUser.id);
+
+                if (!success) {
+                    throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+                }
+
+                return opts.next({
+                    ctx: {
+                        ...ctx,
+                        user: loggedInUser,
+                    },
+                });
+            },
+        );
+        ```
+
+        **Explanation:**
+
+        *   The `rateLimit` utility is pre-configured to use your Upstash Redis instance.
+        *   The `enforceUserIsAuthed` middleware checks if the user has exceeded the rate limit.
+        *   If the rate limit is exceeded, a `TOO_MANY_REQUESTS` error is thrown.
+        *   The `protectedProcedure` is pre-configured with this middleware.
+
+        <Callout type="info">
+            This step is already implemented in the starter template. The `protectedProcedure` is pre-configured with rate limiting.
+        </Callout>
+    </Step>
+
+    <Step>
+        ### Use the Rate Limited Procedure
+
+        Now you can use the `protectedProcedure` in your tRPC routers to protect specific procedures.
+
+        ```ts title="modules/users/server/procedures.ts"
+        import { z } from "zod";
+        import { TRPCError } from "@trpc/server";
+        import { protectedProcedure, router } from "@/server/api/trpc";
+
+        export const userRouter = router({
+            getUser: protectedProcedure
+                .input(z.object({ id: z.string() }))
+                .query(async ({ ctx, input }) => {
+                    const { id } = input;
+
+                    try {
+                        // Your logic here
+                    } catch (error) {
+                        console.error(error);
+                        throw new TRPCError({
+                            code: "INTERNAL_SERVER_ERROR",
+                            message: "Failed to fetch user data",
+                        });
+                    }
+                }),
+        });
+        ```
+    </Step>
+
+</Steps>
+
+## Tips & Notes
+
+- **Customization**: The rate limiting behavior (e.g., number of requests per time period) can be customized in the `utils/rateLimit.ts` file.
+- **Error Handling**: Provide informative error messages to users when they are rate limited.
+- **Varying Limits**: Implement different rate limits for different procedures or user roles by creating multiple `rateLimit` instances with different configurations.
